@@ -1,0 +1,6 @@
+mnist.npz
+models/
+mlp_model/
+.vscode/
+log/
+__pycache__/
