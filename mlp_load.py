@@ -1,10 +1,11 @@
 import numpy as np
-import google.protobuf.text_format as text_format
-
-import oneflow as flow
-import oneflow.core.serving.saved_model_pb2 as saved_model_pb
-
+from oneflow.compatible import single_client as flow
+from oneflow.compatible.single_client import typing as tp
 from PIL import Image
+import os
+
+print(os.getpid())
+
 
 def load_image(file):
     im = Image.open(file).convert("L")
@@ -16,14 +17,55 @@ def load_image(file):
 
 
 if __name__ == '__main__':
-    sess = flow.serving.InferenceSession()
-    sess.load_saved_model(saved_model_dir="./models")
-    sess.launch()
-    logits = sess.run(
-        "mlp_inference",
-        Input_14=load_image("./7.png"),
-        Input_15=np.zeros((1,)).astype(np.int32))
+    # sess = flow.serving.InferenceSession()
+    # sess.load_saved_model(saved_model_dir="./models", model_version=1)
+    # sess.launch()
+    # images = load_image("./7.png")
+    # tags = np.zeros((1,)).astype(np.int32)
+    # logits = sess.run("mlp_inference", Input_14=images, Input_15=tags)
+    # print(logits)
+    # prediction = np.argmax(logits[0], 1)
+    # print("prediction: {}".format(prediction[0]))
+    # sess.close()
 
+    # image_files = os.listdir('test_set')
+    # print(image_files)
+
+    # sess = flow.serving.InferenceSession()
+    # sess.load_saved_model(saved_model_dir="./models", model_version=1)
+    # sess.launch()
+    # images = np.array([load_image('test_set/' + image_files[i]) for i in range(10)]).reshape(10, 1, 28, 28)
+    # tags = np.zeros((10,)).astype(np.int32)
+    # logits = sess.run("mlp_inference", image=images)
+    # print(logits)
+    # prediction = np.argmax(logits[0], 1)
+    # print("prediction: {}".format(prediction[0]))
+    # sess.close()
+
+
+    # sess = flow.serving.InferenceSession()
+    # sess.load_saved_model(saved_model_dir="./models", model_version=1)
+    # sess.launch()
+    # image = load_image("./7.png")
+    # tag = np.zeros((1,)).astype(np.int32)
+
+    # forwardTimes = 10000
+    # cur_time = time.time()
+    # for i in range(forwardTimes):
+    #     logits = sess.run("mlp_inference", Input_14=image, Input_15=tag)
+    # print('It takes {} s to forward {} times'.format(time.time() - cur_time, forwardTimes))
+    # print(logits)
+    # prediction = np.argmax(logits[0], 1)
+    # print("prediction: {}".format(prediction[0]))
+    # sess.close()
+
+    sess = flow.serving.InferenceSession()
+    sess.load_saved_model(saved_model_dir="./lenet_models", model_version=1)
+    sess.launch()
+    images = load_image("./7.png")
+    tags = np.zeros((1,)).astype(np.int32)
+    logits = sess.run("mlp_inference", image=images)
+    print(logits)
     prediction = np.argmax(logits[0], 1)
     print("prediction: {}".format(prediction[0]))
     sess.close()

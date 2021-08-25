@@ -1,5 +1,5 @@
 from oneflow.compatible import single_client as flow
-from mlp_model import mlp_model
+from lenet_model import lenet
 
 
 def init_env():
@@ -16,13 +16,11 @@ def make_mlp_infer_func():
 
     @flow.global_function(type="predict")
     def mlp_inference(
-            images: flow.typing.Numpy.Placeholder((1, 1, 28, 28), dtype=flow.float32),
-            labels: flow.typing.Numpy.Placeholder((1,), dtype=flow.int32)
+            images: flow.typing.Numpy.Placeholder((1, 1, 28, 28), dtype=flow.float32)
     ) -> flow.typing.Numpy:
         input_lbns["image"] = images.logical_blob_name
-        input_lbns["label"] = labels.logical_blob_name
         with flow.scope.placement("gpu", "0:0"):
-            logits = mlp_model(images, labels, train=False)
+            logits = lenet(images, train=False)
         output_lbns["output"] = logits.logical_blob_name
         return logits
 
@@ -33,18 +31,18 @@ def save_model():
     init_env()
     mlp_infer, input_lbns, output_lbns = make_mlp_infer_func()
     print(mlp_infer.__name__)
-    flow.load_variables(flow.checkpoint.get("./mlp_model"))
+    flow.load_variables(flow.checkpoint.get("./lenet_models_1"))
 
-    saved_model_path = "models"
-    model_name = "mlp"
-    model_version = 3
+    saved_model_path = "lenet_models"
+    model_name = "lenet"
+    model_version = 1
 
     saved_model_builder = flow.saved_model.ModelBuilder(saved_model_path)
     signature_builder = (
         saved_model_builder.ModelName(model_name)
         .Version(model_version)
         .AddFunction(mlp_infer)
-        .AddSignature('mlp')
+        .AddSignature('lenet')
     )
     for input_name, lbn in input_lbns.items():
         signature_builder.Input(input_name, lbn)

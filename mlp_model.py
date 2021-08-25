@@ -1,13 +1,15 @@
-import oneflow as flow
-import oneflow.typing as tp
+from oneflow.compatible import single_client as flow
+from oneflow.compatible.single_client import typing as tp
 import numpy as np
 
 BATCH_SIZE = 100
+flow.enable_eager_execution(False)
 
 
 def mlp_model(images, labels, train=True):
     # [batch_size, image_sizes] -> [batch_size, pixels]
-    reshape = flow.reshape(images, [images.shape[0], -1])
+    # reshape = flow.reshape(images, [images.shape[0], -1])
+    reshape = flow.flatten(images, start_dim=1)
 
     # dense, [batch_size, pixels] -> [batch_size, 500]
     initializer1 = flow.random_uniform_initializer(-1 / 28.0, 1 / 28.0)
